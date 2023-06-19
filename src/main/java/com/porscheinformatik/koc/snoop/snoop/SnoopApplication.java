@@ -23,11 +23,13 @@ public class SnoopApplication {
     @GetMapping("/")
     public Map<String, Object> handle(HttpServletRequest request) {
         Map<String, Object> headers = new HashMap<>();
-        for (Enumeration<String> headerNames = request.getHeaderNames(); headerNames.hasMoreElements(); ) {
+        for (Enumeration<String> headerNames = request.getHeaderNames(); headerNames.hasMoreElements();) {
             String headerName = headerNames.nextElement();
             headers.put(headerName, Collections.list(request.getHeaders(headerName)));
         }
 
-        return Map.of("headers", headers, "remoteAddr", request.getRemoteAddr(), "remoteHost", request.getRemoteHost(), "remotePort", request.getRemotePort());
+        return Map.of("headers", headers, "remoteAddr", request.getRemoteAddr(), "remoteHost", request.getRemoteHost(),
+                "remotePort", request.getRemotePort(), "serverName", request.getServerName(),
+                "serverPort", request.getServerPort(), "scheme", request.getScheme());
     }
 }
