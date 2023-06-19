@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [main]
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -20,11 +24,14 @@ jobs:
           java-version: 17
           distribution: adopt
       - name: Build
-        run: mvn -B install spring-boot:build-image -Dspring-boot.build-image.imageName=ghcr.io/derkoe/snoop
+        run: mvn -B install spring-boot:build-image -Dspring-boot.build-image.imageName=$REGISTRY/$IMAGE_NAME
+      - name: Log in to the Container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Push images to ghcr.io
         if: ${{ github.event_name != 'pull_request'}}
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
         run: |
-          echo "${GITHUB_TOKEN}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
-          docker push ghcr.io/derkoe/snoop
+          docker push $REGISTRY/$IMAGE_NAME
